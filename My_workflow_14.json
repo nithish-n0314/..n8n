@@ -1,0 +1,184 @@
+{
+  "name": "My workflow 14",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "72016d1b-4df2-433c-8aa9-48c2a7a61d81",
+              "name": "name",
+              "value": "Priya",
+              "type": "string"
+            },
+            {
+              "id": "6cf2d548-7a93-40bf-bc4c-5e4d1bf13a5a",
+              "name": "age",
+              "value": 25,
+              "type": "number"
+            },
+            {
+              "id": "b01c889d-b41e-4f25-889b-1fdd241cf456",
+              "name": "gender",
+              "value": "female",
+              "type": "string"
+            },
+            {
+              "id": "ec7f6c1f-2eda-49ef-84aa-19e2d20912b5",
+              "name": "purchases",
+              "value": "sneakers, yoga pants, sports bra",
+              "type": "string"
+            },
+            {
+              "id": "a3644504-c765-49ee-ac46-a5de6fa9db5e",
+              "name": "browsing",
+              "value": "fitness tracker, running shoes",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        0
+      ],
+      "id": "b9ec8622-17e1-422f-863e-930f10cb94f9",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyCnsuVRwyCGHXnboMM7lRhvGTH3u7AMRpM",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "\tapplication/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"Give 3 personalized product recommendations for a 25-year-old woman who bought sneakers, yoga pants, and a sports bra, and is browsing fitness trackers and running shoes. For each product, include a real brand name such as Fitbit, Nike, Adidas, or Lululemon, and describe why it is a good match.\"\n        }\n      ]\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        0
+      ],
+      "id": "b6a02a9c-78fd-4d83-b54f-1f820f724657",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "let text = $json[\"candidates\"][0][\"content\"][\"parts\"][0][\"text\"];\n\n// Replace bold and italic markdown with styled HTML\ntext = text.replace(/\\*\\*(.*?)\\*\\*/g, '<b style=\"color: #00e652;\">$1</b>');  // Bold with blue\ntext = text.replace(/\\*(.*?)\\*/g, '<span style=\"color: #404140;\">$1</span>');    // Italic with gray\n\nreturn [{\n  json: {\n    recommendations: text\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        0
+      ],
+      "id": "128d99e1-66a0-4412-afe4-34727d3cf29f",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "sendTo": "srinira1225@gmail.com",
+        "subject": "Your AI-Powered Product Picks 🛍️",
+        "message": "=Hi {{$json.name}},<br><br>\n\nBased on your recent shopping and browsing preferences, here are three personalized product recommendations curated for your fitness journey:<br><br>\n\n<div style=\"font-family: Arial, sans-serif; font-size: 15px;\">\n  {{$json.recommendations}}\n</div>\n\n<br>\nStay fit and inspired!<br>\n— Your Smart Shopping Assistant 🛍️\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        920,
+        0
+      ],
+      "id": "06bc4e68-ddc8-4972-a67b-abe9ba9b5a50",
+      "name": "Send a message",
+      "webhookId": "cb3eea1f-d76e-450c-9fb7-a27835feb244",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6zRB5nBbFaNO9Zm8",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "56031c71-8de1-4d2f-bf1c-6430d4372e27",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "77572b66-88ca-4594-8b09-82b869c1ac76",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9241ef268d75cfc44b9441f09e2beae29935a91fb19e89f11983a769b88c6647"
+  },
+  "id": "eS53iSUNKruZmpBT",
+  "tags": []
+}
